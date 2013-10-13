@@ -1,0 +1,147 @@
+\documentclass[a4paper]{jpconf}
+\usepackage{graphicx}
+\begin{document}
+\title{Event processing time prediction at the CMS Experiment of the Large Hadron Collider}
+
+\author{Jacky Mucklow}
+
+\address{Production Editor, \jpcs, \iopp, Dirac House, Temple Back, Bristol BS1~6BE, UK}
+
+\ead{jacky.mucklow@iop.org}
+
+\begin{abstract}
+The physics event reconstruction in LHC/CMS is one of the biggest challenges for computing.
+
+Among the different tasks that computing systems perform, the reconstruction takes most of the CPU resources that are available. The reconstruction time of a single event varies according to the event complexity. Measurements were done in order to find precisely this correlation, creating means to predict it based on the physics conditions of the input data.
+
+Currently the data processing system do not account that when splitting a task in chunks(jobs), this can cause a considerable variation in the job length, thus a considerable increase into the workflow Estimated Time of Arrival.
+
+The goal is to use this estimate on processing time to more efficiently split the work in chunks, considering the CPU time needed for each chunk and due to this, lowering the standard deviation of the job length distribution in a workflow.
+\end{abstract}
+
+\section{Introduction}
+The goal of this study is to find the factors from data-taking that influence the processing time. Once a defined relation is found, the potential sources of systematic error are exposed but still based on the current precision, some problems that are consequence of the variation of those parameters are adressed.
+
+Although it is known that the main factor influencing the processing time is particle track multiplicity, this relation was never quantified(measured?) before. Those measurements are presented here and based on that a way to predict the processing time of future data in the same luminosity range.
+
+\section{The physics factors}
+
+\subsection{Particle track multiplicity}
+The complexity of track reconstruction is due to the large number of charged particle tracks from the collisions as well as the  overlap among them. Iterations become thus necessary in order  not only to fit hits in the tracking detectors but also to distinguish the possible combinations resulting from combinatorics. The number of hits used for reconstructing tracks depends strongly on instantaneous luminosity and the number of collisions that happen simultaneously per beam bunch crossing (pile-up interactions). Pile-up itself is a function of the accelerator running conditions and instantaneous luminosity. The focus of this study is, therefore, on instantaneous luminosity
+
+INCLUDE HERE PICTURES OF TRACK MULTIPLICITY AND THINK ABOUT THE ONE ILLUSTRATING THE ALGORITHM
+
+\subsection{LHC current luminosity operational range}
+
+2012 was the most challenging year for the LHC Run1 data-taking (From 2010 to the first quarter of 2013). The LHC Operational energy was of 8 TeV, we achieved record instantaneous luminosity values in the CMS detector. That translates into a record track multiplicity, increasing the number of pile-up interactions per bunch-crossing.
+
+In a usual data-taking day, the instantaneous luminosity range is from 7200 UNIT to 2500 UNIT in the end of the Fill. The number of Pile-Up interactions, proportional to that is of 34 in the beginning of the fill and 12 at the end. We can see in the figures 3, 4 and 5, how does the insteantaneous luminosity curve, Pile-Up curve and processing time look like respectively. Observe that the 3 values are proportional.
+
+INCLUDE HERE THE DATA-TAKING RANGE PLOTS - FIGURES 3, 4 AND 5
+
+For illustrative purposes, the event displays below show tracks coming out of collisions with lower number of tracks (top, 16 pile-up events per bunch-crossing) or many tracks (bottom) as in events with high instantaneous luminosity and large event pile-up (27 
+PU/bunch-crossing).
+
+INCLUDE HERE THE EVENT DISPLAYS - FIGURES 6 AND 7
+
+\section{Event processing time measurements}
+
+\subsection{Generic performance curves}
+The following is a measurement of the CMS software (CMSSW) performance for a given software release and type of events (primary dataset), in this case Single Muon. The performance varies significantly according to the type of physics. Different physics signatures naturally produce more, or less tracks.These measurements on existing processed data are used to estimate processing time of future LHC data. One important factor to consider in the estimate are systematic shifs in these measurements caused by the heterogeneity of the processing farms. Different CPU models will result in different processing time for the same collision type. Our measurements have been done over different CPU models so we believe that the resulting average is a representative value that will be the most useful as an estimate for the CMS central operations.
+
+INCLUDE PERFORMANCE CURVE HERE - FIGURE 7
+
+\subsection{Systematic errors}
+
+Measurements were done on 35 PromptReco workflows to observe 
+how close to the real value our estimation gets. The error 
+introduced by the CPU speed fluctuation in the Tier-0 farm can be 
+up to 37.75%. This comes from the difference of HEPSpecs 2006 
+(Benchmark unit) between the fastest and slowest CPU models.
+The green histogram shows the distribution of error values for all 
+workflows. The blue is a histogram of the number of cores in the 
+farm per HS06 values, showing how they contribute to the error. In 
+the table below, some specific measurements, from smaller to 
+bigger error.
+
+INCLUDE TABLE HERE? (figure I hope, for avoiding formatting hell)
+
+INCLUDE 2 FIGURES FOR THE ERROR
+
+\section{Improvements to Monitoring and Job Splitting}
+
+\subsection{Monitoring}
+
+The job-splitting algorithm uses performance information collected at the 
+end of each workflow by the WMAgents. This information is reported to a 
+specific service maintained by the CMS Dashboard. The information is 
+not only used from the data service for automated systems but also for 
+web-based interfaces to be used by CMS members to visualize 
+performance curves or average processing times per release and 
+dataset. 
+
+FIGURES FROM DASHBOARD HERE - 2 OF THEM
+
+\subsection{Job Splitting}
+
+This study motivated a solution to diminish the long tail effects in CMS 
+data processing. As the relation between instantaneous luminosity and 
+reconstruction time is well known, we are able to predict the 
+time-per-event by using the luminosity value from the data. Different 
+CMS web services exist that provide access to this kind of information. 
+A job-splitting algorithm was developed for the Workload Management 
+Agent that uses this information to estimate a processing time per 
+event. In addition the number of events per processing job is chosen 
+dynamically such that the processing times become more uniform. The 
+ideal processing time per job is approximately 8 hours.
+
+
+FORMAT NICELY THE LOG FILE HERE
+
+\subsection{Results}
+
+The observed effect is demonstrated in the figures below. Both figures are 
+result of the same Reconstruction Workflow. The first figure shows the effect 
+for jobs splitted by the common EventBased algorithm, where the number of 
+events is fixed for all jobs. The second figure shows the case where the 
+splitting is done by the algorithm LuminosityBased algorithm, described 
+above. It is expected from the Luminosity splitter, a more narrow distribution, 
+as it makes the job execution time more uniform in a workflow. In cases 
+where performance information is not yet available, it will split jobs exactly as 
+EventBased would. The improvements shown here are expected to be even 
+larger in future production systems as the performance information gathered 
+is expected to increase.
+
+INSERT THE 2 FIGURES HERE
+
+\section{Conclusion}
+
+This initial study shows that it is feasible to predict the 
+time-per-event behavior for reconstruction workflows of CMS. It was 
+observed that heterogeneous farms introduce considerable systematic 
+variations into the mechanism, and should be taken into account. We 
+demonstrated that this information can be used in order to reduce the 
+data processing tails, which have been until now a time-consuming 
+problem impacting many time-critical prompt reconstruction workflows 
+in the CMS Tier0. Furthermore, a job splitting algorithm has been 
+developed that uses performance data dynamically according to the 
+data-taking conditions.
+
+
+\section{TEMP comments}
+
+Then we need to include all reference and authorship and acknowledgements bla bla bla here 
+
+References - non-formatted :
+
+[1] D Giordano and G Sguazzoni, CMS reconstruction improvements for the tracking in 
+large pile-up events, doi:10.1088/1742-6596/396/2/022044
+[2] The CMS Collaboration, Performance of CMS muon reconstruction in pp collision 
+events at sqrt(s) = 7 TeV, arXiv:1206.4071
+ [3] T Hauth, V Innocente and D Piparo, Development and Evaluation of Vectorised and
+Multi-Core Event Reconstruction Algorithms within
+the CMS Software Framework, doi:10.1088/1742-6596/396/5/052065
+
+\end{document}
+
+
